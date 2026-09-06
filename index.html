@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Compare</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <p class="kicker">Stats, not opinions</p>
+    <h1>Player Compare</h1>
+    <p class="subtitle">Pick two players. See who actually has the numbers.</p>
+  </header>
+
+  <main>
+    <section class="picker">
+      <div class="picker-slot">
+        <label for="playerA">Player A</label>
+        <select id="playerA"></select>
+      </div>
+
+      <div class="vs">vs</div>
+
+      <div class="picker-slot">
+        <label for="playerB">Player B</label>
+        <select id="playerB"></select>
+      </div>
+    </section>
+
+    <section class="result">
+      <table id="statsTable">
+        <thead>
+          <tr>
+            <th id="nameA">—</th>
+            <th class="stat-label">Stat</th>
+            <th id="nameB">—</th>
+          </tr>
+        </thead>
+        <tbody id="statsBody">
+          <!-- filled by script.js -->
+        </tbody>
+      </table>
+    </section>
+
+    <p class="footnote">Sample stats for demo purposes — swap in your own data anytime.</p>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
