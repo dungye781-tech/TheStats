@@ -9,42 +9,55 @@
 <body>
 
   <header class="site-header">
-    <p class="kicker">Stats, not opinions</p>
+    <p class="kicker">All-time legends + real 2025-26 EPL data</p>
     <h1>TheStats</h1>
-    <p class="subtitle">Pick two players. See who actually has the numbers.</p>
+    <p class="subtitle">Search two players. See who actually has the numbers.</p>
   </header>
 
   <main>
     <section class="picker">
       <div class="picker-slot">
         <label for="playerA">Player A</label>
-        <select id="playerA"></select>
+        <input type="text" id="playerA" list="playerListA" placeholder="Start typing a name..." autocomplete="off">
+        <datalist id="playerListA"></datalist>
       </div>
 
       <div class="vs">vs</div>
 
       <div class="picker-slot">
         <label for="playerB">Player B</label>
-        <select id="playerB"></select>
+        <input type="text" id="playerB" list="playerListB" placeholder="Start typing a name..." autocomplete="off">
+        <datalist id="playerListB"></datalist>
       </div>
     </section>
 
+    <p id="mismatchWarning" class="mismatch-warning hidden">
+      Heads up: you're comparing career totals against a single season — not an apples-to-apples match.
+    </p>
+
     <section class="result">
-      <table id="statsTable">
+      <table id="statsTable" class="hidden">
         <thead>
           <tr>
-            <th id="nameA">—</th>
+            <th>
+              <div id="nameA">—</div>
+              <div id="tagA" class="type-tag"></div>
+            </th>
             <th class="stat-label">Stat</th>
-            <th id="nameB">—</th>
+            <th>
+              <div id="nameB">—</div>
+              <div id="tagB" class="type-tag"></div>
+            </th>
           </tr>
         </thead>
         <tbody id="statsBody">
           <!-- filled by script.js -->
         </tbody>
       </table>
+      <p id="emptyState" class="empty-state">Search for two players above to compare them.</p>
     </section>
 
-    <p class="footnote">Sample stats for demo purposes — swap in your own data anytime.</p>
+    <p class="footnote">10 all-time legends (career totals) &middot; 537 EPL players (2025-26 season)</p>
   </main>
 
   <script src="script.js"></script>

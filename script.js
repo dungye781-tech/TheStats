@@ -1,81 +1,125 @@
-// --- 1. THE DATA ---
-// This is the whole "database" for now: just an array of objects.
-// Swap in real numbers or fetch from an API later — the rest of the code doesn't care.
-const players = [
-  { name: "Lionel Messi", goals: 922, assists: 424, appearances: 1080, goalsPerGame: 0.85, ballonDor: 8 },
-  { name: "Cristiano Ronaldo", goals: 976, assists: 260, appearances: 1240, goalsPerGame: 0.79, ballonDor: 5 },
-  { name: "Kylian Mbappé", goals: 368, assists: 168, appearances: 470, goalsPerGame: 0.78, ballonDor: 0 },
-  { name: "Erling Haaland", goals: 320, assists: 62, appearances: 370, goalsPerGame: 0.86, ballonDor: 0 },
-  { name: "Neymar Jr", goals: 466, assists: 268, appearances: 810, goalsPerGame: 0.58, ballonDor: 0 },
-  { name: "Mohamed Salah", goals: 264, assists: 122, appearances: 480, goalsPerGame: 0.55, ballonDor: 0 },
-  { name: "Kevin De Bruyne", goals: 128, assists: 220, appearances: 620, goalsPerGame: 0.21, ballonDor: 0 },
-  { name: "Robert Lewandowski", goals: 640, assists: 152, appearances: 830, goalsPerGame: 0.77, ballonDor: 0 },
+// --- 1. LOAD THE DATA ---
+// players.json now has two kinds of entries, marked by "type":
+//   "legend" -> career totals for retired/all-time greats (rough estimates)
+//   "epl"    -> real 2025-26 Premier League season stats
+// They don't share every stat field, so the table shows "—" for whatever
+// a given player's type doesn't track.
+let players = [];
+
+// Union of every stat either data type might have. If a player object
+// doesn't have that key, we just render a dash for it.
+const statRows = [
+  { key: "team", label: "Team" },
+  { key: "position", label: "Position" },
+  { key: "goals", label: "Goals" },
+  { key: "assists", label: "Assists" },
+  { key: "appearances", label: "Appearances / Starts" },
+  { key: "goalsPerGame", label: "Goals per Game" },
+  { key: "minutes", label: "Minutes Played" },
+  { key: "cleanSheets", label: "Clean Sheets" },
+  { key: "points", label: "Fantasy Points" },
+  { key: "yellowCards", label: "Yellow Cards" },
+  { key: "redCards", label: "Red Cards" },
+  { key: "trophies", label: "Team Trophies" },
+  { key: "internationalGoals", label: "International Goals" },
+  { key: "ballonDor", label: "Ballon d'Or Wins" },
+  { key: "worldCups", label: "World Cups Won" },
 ];
 
-// The stats we'll show as rows, in order.
-// "key" must match a property name in the player objects above.
-const statRows = [
-  { key: "goals", label: "Career Goals" },
-  { key: "assists", label: "Career Assists" },
-  { key: "appearances", label: "Appearances" },
-  { key: "goalsPerGame", label: "Goals per Game" },
-  { key: "ballonDor", label: "Ballon d'Or Wins" },
-];
+const TYPE_LABEL = {
+  legend: "All-time career stats",
+  epl: "2025-26 Premier League season",
+};
 
 // --- 2. GRAB THE HTML ELEMENTS WE'LL NEED ---
-const selectA = document.getElementById("playerA");
-const selectB = document.getElementById("playerB");
+const inputA = document.getElementById("playerA");
+const inputB = document.getElementById("playerB");
+const listA = document.getElementById("playerListA");
+const listB = document.getElementById("playerListB");
 const nameA = document.getElementById("nameA");
 const nameB = document.getElementById("nameB");
+const tagA = document.getElementById("tagA");
+const tagB = document.getElementById("tagB");
 const statsBody = document.getElementById("statsBody");
+const statsTable = document.getElementById("statsTable");
+const emptyState = document.getElementById("emptyState");
+const mismatchWarning = document.getElementById("mismatchWarning");
 
-// --- 3. FILL THE TWO DROPDOWNS WITH PLAYER NAMES ---
-function populateDropdown(select) {
-  players.forEach((player, index) => {
+// --- 3. FETCH THE PLAYER DATA, THEN SET EVERYTHING UP ---
+fetch("players.json")
+  .then(response => response.json())
+  .then(data => {
+    players = data;
+    populateDatalist(listA);
+    populateDatalist(listB);
+  })
+  .catch(error => {
+    console.error("Couldn't load player data:", error);
+    emptyState.textContent = "Couldn't load player data. Check players.json exists.";
+  });
+
+function populateDatalist(datalist) {
+  players.forEach(player => {
     const option = document.createElement("option");
-    option.value = index;       // we store the array index, not the name
-    option.textContent = player.name;
-    select.appendChild(option);
+    option.value = player.name;
+    datalist.appendChild(option);
   });
 }
 
-populateDropdown(selectA);
-populateDropdown(selectB);
+// --- 4. FIND A PLAYER BY EXACT NAME MATCH ---
+function findPlayer(name) {
+  return players.find(p => p.name.toLowerCase() === name.trim().toLowerCase());
+}
 
-// Default: compare the first two players so the table isn't empty on load.
-selectA.value = 0;
-selectB.value = 1;
-
-// --- 4. RENDER THE COMPARISON TABLE ---
+// --- 5. RENDER THE COMPARISON TABLE ---
 function render() {
-  const playerA = players[selectA.value];
-  const playerB = players[selectB.value];
+  const playerA = findPlayer(inputA.value);
+  const playerB = findPlayer(inputB.value);
+
+  if (!playerA || !playerB) {
+    statsTable.classList.add("hidden");
+    mismatchWarning.classList.add("hidden");
+    emptyState.classList.remove("hidden");
+    return;
+  }
+
+  statsTable.classList.remove("hidden");
+  emptyState.classList.add("hidden");
 
   nameA.textContent = playerA.name;
   nameB.textContent = playerB.name;
+  tagA.textContent = TYPE_LABEL[playerA.type] || "";
+  tagB.textContent = TYPE_LABEL[playerB.type] || "";
 
-  // Clear old rows, then rebuild from scratch. Simple > clever for a beginner project.
+  // Warn when comparing across the two data types — career totals vs.
+  // a single season aren't a fair fight, and the person should know that.
+  mismatchWarning.classList.toggle("hidden", playerA.type === playerB.type);
+
   statsBody.innerHTML = "";
 
   statRows.forEach(stat => {
     const valueA = playerA[stat.key];
     const valueB = playerB[stat.key];
 
+    // Skip rows where NEITHER player has this stat at all.
+    if (valueA === undefined && valueB === undefined) return;
+
     const row = document.createElement("tr");
 
     const cellA = document.createElement("td");
-    cellA.textContent = valueA;
+    cellA.textContent = valueA === undefined ? "—" : valueA;
 
     const cellLabel = document.createElement("td");
     cellLabel.textContent = stat.label;
     cellLabel.className = "stat-name";
 
     const cellB = document.createElement("td");
-    cellB.textContent = valueB;
+    cellB.textContent = valueB === undefined ? "—" : valueB;
 
-    // Highlight whichever side has the higher number.
-    if (valueA > valueB) cellA.classList.add("winner");
-    if (valueB > valueA) cellB.classList.add("winner");
+    if (typeof valueA === "number" && typeof valueB === "number") {
+      if (valueA > valueB) cellA.classList.add("winner");
+      if (valueB > valueA) cellB.classList.add("winner");
+    }
 
     row.appendChild(cellA);
     row.appendChild(cellLabel);
@@ -84,9 +128,6 @@ function render() {
   });
 }
 
-// --- 5. RE-RENDER WHENEVER A DROPDOWN CHANGES ---
-selectA.addEventListener("change", render);
-selectB.addEventListener("change", render);
-
-// Initial render on page load.
-render();
+// --- 6. RE-RENDER WHENEVER SOMEONE TYPES ---
+inputA.addEventListener("input", render);
+inputB.addEventListener("input", render);

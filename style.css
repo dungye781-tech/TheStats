@@ -73,7 +73,7 @@ main {
   color: var(--pitch-mid);
 }
 
-.picker-slot select {
+.picker-slot input {
   font-family: inherit;
   font-size: 1rem;
   padding: 0.6rem 0.7rem;
@@ -81,6 +81,12 @@ main {
   border-radius: 8px;
   background: #fff;
   color: var(--ink);
+  width: 100%;
+}
+
+.picker-slot input:focus {
+  outline: none;
+  border-color: var(--pitch-mid);
 }
 
 .vs {
@@ -140,6 +146,35 @@ tbody tr:last-child td { border-bottom: none; }
   background: var(--gold);
   margin-top: 4px;
 }
+
+.type-tag {
+  font-size: 0.7rem;
+  font-weight: 400;
+  opacity: 0.8;
+  margin-top: 0.2rem;
+}
+
+.mismatch-warning {
+  background: rgba(224, 176, 74, 0.15);
+  border: 1px solid var(--gold);
+  color: var(--pitch-dark);
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  color: rgba(20, 35, 29, 0.5);
+  padding: 2rem 1rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(20, 35, 29, 0.1);
+}
+
+.hidden { display: none; }
 
 .footnote {
   text-align: center;
